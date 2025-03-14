@@ -1,0 +1,53 @@
+---
+# General Variables
+timezone: "Europe/Moscow"
+hostname: "cisco-router"        # Base hostname. Can be overridden in host_vars.
+admin_user: "admin"
+admin_password: "!vault |"      # !!! MUST USE ANSIBLE VAULT !!!
+admin_privilege: 15
+domain_name: "example.com"
+
+# Network Settings
+interface_name: "GigabitEthernet0/0/0"  # !!! CHECK THIS ON YOUR DEVICES !!!
+static_ip: "192.168.1.1"
+netmask: "255.255.255.0"
+gateway: "192.168.1.254"
+dns_servers:
+  - "8.8.8.8"
+  - "8.8.4.4"
+
+# WireGuard (IOS XE 17.3+ and proper licensing)
+wireguard_interface: "Tunnel100"
+wireguard_private_key: "!vault |"  # !!! MUST USE ANSIBLE VAULT !!!
+wireguard_public_key: "!vault |"   # !!! MUST USE ANSIBLE VAULT !!!
+wireguard_listen_port: 51820
+wireguard_address: "10.8.0.1/24"
+wireguard_peers: []  # See example below (and use Vault for sensitive data!)
+  # - public_key: "!vault |"      # !!! MUST USE ANSIBLE VAULT !!!
+  #   allowed_ips: "10.8.0.2/32"
+  #   endpoint: "your.peer.ip:51820"
+  #   persistent_keepalive: 25
+
+# VLANs
+vlans:
+  - id: 10
+    name: "Main"
+  - id: 20
+    name: "Servers"
+  - id: 30
+    name: "Guests"
+
+# Ansible Connection Variables (better here than in the inventory file)
+# ansible_user: "admin"             # Use admin_user above instead
+# ansible_password: "!vault |"       # !!! MUST USE ANSIBLE VAULT !!! Use admin_password.
+ansible_become_pass: "!vault |"    # !!! MUST USE ANSIBLE VAULT !!!
+
+# --- Example of an encrypted variable using Ansible Vault ---
+# my_secret_variable: !vault |
+#          $ANSIBLE_VAULT;1.1;AES256
+#          61373433356434613239653533353738656231613461333238633939616539383666656338333761
+#          3133653065653162613739316539303134356634373332370a3737623436313566353666663964
+#          376638383263636538626237346433363563633736386561363336616432636464643938326664
+#          3161363266633738326365350a3732636630323638336561656136303563356339653134313664
+#          376566303362386539626638386638396264383765393865646164336462323661626137323435
+#          66
