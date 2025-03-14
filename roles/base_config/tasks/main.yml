@@ -1,0 +1,112 @@
+---
+- name: Check IOS XE version compatibility (17.3+ for WireGuard)
+  assert:
+    that:
+      - ansible_net_version is version_compare('17.3', '>=')
+    msg: "IOS XE version is not compatible.  Requires 17.3+ for WireGuard."
+
+- name: Update system (IOS XE - using install commands)
+  block:
+    - name: Check current image
+      cisco.ios.ios_command:
+        commands: show version | include image file
+      register: current_image
+
+    - name: Transfer image (if needed - example using TFTP)
+      when: "'flash:your_new_image.bin' not in current_image.stdout"
+      cisco.ios.ios_command:
+        commands:
+          - "copy tftp://your_tftp_server/your_new_image.bin flash:your_new_image.bin" # Update the command
+
+    - name: Install new image
+      when: "'flash:your_new_image.bin' not in current_image.stdout"
+      cisco.ios.ios_install:
+        image: your_new_image.bin
+        auto_validate: true
+        auto_clean: true
+      notify: Reboot device
+
+  rescue:
+    - debug:
+        msg: "System upgrade failed.  Check IOS version, image file, and install commands."
+
+- name: Set hostname
+  cisco.ios.ios_hostname:
+    hostname: "{{ hostname }}"
+    config: true
+    save_when: always
+
+- name: Set timezone
+  cisco.ios.ios_clock:
+    timezone: "{{ timezone }}"
+    source: manual
+    summer_time:
+        option: recurring
+    config: true
+
+- name: Configure domain name (optional)
+  when: domain_name is defined
+  cisco.ios.ios_config:
+      lines:
+      - "ip domain name {{ domain_name }}"
+      save_when: always
+
+- name: Create admin user
+  cisco.ios.ios_user:
+    name: "{{ admin_user }}"
+    password: "{{ admin_password }}"
+    privilege: "{{ admin_privilege }}"
+    state: present
+    config: true
+
+- name: Configure SSH (ENHANCED)
+  cisco.ios.ios_config:
+    lines:
+      - "ip ssh version 2"
+      - "ip ssh time-out 60"
+      - "ip ssh authentication-retries 3"
+      - "ip ssh source-interface {{ interface_name }}"
+      - "line vty 0 4"
+      - "  transport input ssh"
+      - "  login local"
+      - "  exec-timeout 5 0"
+    save_when: always
+
+- name: Configure Access Control List for SSH (Example)
+  cisco.ios.ios_config:
+    lines:
+      - "ip access-list extended SSH_ACCESS"
+      - "  permit tcp host 192.168.1.100 any eq 22"  # !!! CHANGE THIS TO YOUR ALLOWED IP !!!
+      - "  deny   tcp any any eq 22"
+      - "line vty 0 4"
+      - "  access-class SSH_ACCESS in"
+    save_when: always
+
+- name: Configure static IP address
+  cisco.ios.ios_interfaces:
+    config:
+      - name: "{{ interface_name }}"
+        enabled: true
+        ipv4:
+          - address: "{{ static_ip }}"
+            mask: "{{ netmask }}"
+        description: "Uplink Interface"
+    state: replaced
+
+- name: Configure default gateway
+  cisco.ios.ios_static_route:
+      prefix: 0.0.0.0
+      mask: 0.0.0.0
+      next_hop: "{{ gateway }}"
+      state: present
+
+- name: Configure DNS servers
+    cisco.ios.ios_config:
+      lines:
+        - "ip name-server {{ dns_servers | join(' ') }}"
+      save_when: always
+
+- name: Create VLANs
+  cisco.ios.ios_vlans:
+    aggregate: "{{ vlans }}"
+    state: present
