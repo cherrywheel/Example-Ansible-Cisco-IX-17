@@ -1,0 +1,78 @@
+---
+- name: Configure WireGuard
+  block:
+    - name: Generate WireGuard keys (if not provided)
+      local_action: command wg genkey
+      register: wg_private_key_gen
+      when: wireguard_private_key == "YOUR_PRIVATE_KEY" # For the case when vault is not used
+      delegate_to: localhost
+      run_once: true
+
+    - name: Get public key from private key
+      local_action: command wg pubkey
+      args:
+        stdin: "{{ wg_private_key_gen.stdout }}"
+      register: wg_public_key_gen
+      when: wireguard_private_key == "YOUR_PRIVATE_KEY" # For the case when vault is not used
+      delegate_to: localhost
+      run_once: true
+
+    - name: Set generated keys
+      set_fact:
+        wireguard_private_key: "{{ wg_private_key_gen.stdout }}"
+        wireguard_public_key: "{{ wg_public_key_gen.stdout }}"
+      when: wireguard_private_key == "YOUR_PRIVATE_KEY" # For the case when vault is not used
+
+    - name: Configure Crypto Keyring
+      cisco.ios.ios_crypto_keyring:
+        name: wg-keyring
+        local_address: "{{ static_ip }}"
+        peers:
+        - address: "0.0.0.0"
+          psk:
+            local: "{{ wireguard_private_key }}"
+            address: "0.0.0.0"
+        state: present
+
+    - name: Configure WireGuard Interface
+      cisco.ios.ios_interfaces:
+          config:
+          - name: "{{ wireguard_interface }}"
+            enabled: true
+            description: "WireGuard Tunnel"
+            tunnel_source: "{{ interface_name }}"
+            tunnel_mode:
+              wireguard: {}
+            tunnel_destination: "0.0.0.0"
+            tunnel_protection:
+              wireguard:
+                profile: wg-profile
+            ipv4:
+              - address: "{{ wireguard_address.split('/')[0] }}"
+                mask: "{{ (2**(32 - wireguard_address.split('/')[1]|int) - 1) | ansible.utils.ipv4_netmask }}"
+          state: replaced
+
+    - name: Configure WireGuard Profile
+      cisco.ios.ios_crypto_profile:
+        name: wg-profile
+        type: wireguard
+        listen_port: "{{ wireguard_listen_port }}"
+        keyring: wg-keyring
+        peers:
+          - address: "0.0.0.0"
+        state: present
+
+    - name: Configure WireGuard Peers
+      with_items: "{{ wireguard_peers }}"
+      cisco.ios.ios_crypto_profile:
+          name: wg-profile
+          type: wireguard
+          peers:
+            - address: "{{ item.public_key }}"
+              endpoint: "{{ item.endpoint | default('') }}"
+              allowed_ips: "{{ item.allowed_ips }}"
+              keepalive: "{{ item.persistent_keepalive | default(0) }}"
+          state: present
+  rescue:
+    - debug:
+        msg: "WireGuard configuration failed. Ensure IOS XE 17.3+ and appropriate licensing."
