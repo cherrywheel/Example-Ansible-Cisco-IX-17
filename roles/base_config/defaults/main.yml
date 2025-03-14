@@ -1,0 +1,15 @@
+---
+# Default values for the base_config role
+# These can be overridden by group_vars or host_vars
+
+# Set a very generic default hostname in case it is not
+# defined elsewhere
+hostname: "cisco-device"
+
+# A default, very restrictive, SSH ACL (permit nothing).
+# This should ALWAYS be overridden in group_vars or host_vars.
+ssh_acl:
+  - "deny   tcp any any eq 22"
+
+# Default interface description
+interface_description: "Managed by Ansible"
