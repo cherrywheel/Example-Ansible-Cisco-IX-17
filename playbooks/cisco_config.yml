@@ -1,0 +1,52 @@
+---
+- hosts: cisco_devices
+  gather_facts: true  # Needed for ansible_net_version
+  become: yes
+  become_method: enable
+
+  roles:
+    - base_config     # Apply the base_config role
+    - wireguard_config  # Apply the wireguard_config role
+
+  tasks:
+    - name: Install Netdata (requires IOS XE 16.9+ with Guest Shell)
+      block:
+        - name: Enable Guest Shell
+          cisco.ios.ios_config:
+            lines:
+              - "guestshell enable"
+          register: guestshell_enable_result
+          ignore_errors: yes  # Might already be enabled
+
+        - name: Wait for Guest Shell
+          wait_for:
+            timeout: 60
+
+        - name: Install Netdata
+          cisco.ios.ios_command:
+            commands:
+              - "guestshell run bash"
+              - "curl -SsL https://my-netdata.io/kickstart.sh > /tmp/kickstart.sh"
+              - "sh /tmp/kickstart.sh --non-interactive --stable-channel --disable-telemetry"
+              - "exit" # Exit guestshell
+          register: netdata_result # Register to see result in debug
+          # ignore_errors: yes # Uncomment if continue is needed even Netdata install failed.
+
+        - name: Show Netdata install result
+          debug:
+            var: netdata_result
+            verbosity: 2
+
+      rescue:
+        - debug:
+            msg: "Netdata installation failed. Ensure IOS XE 16.9+ with Guest Shell is available."
+
+    - name: Save running config
+      cisco.ios.ios_config:
+        save_when: always
+
+  handlers:
+    - name: Reboot device
+      cisco.ios.ios_command:
+        commands: reload
+      listen: "Reboot device"
