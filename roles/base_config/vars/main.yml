@@ -1,0 +1,3 @@
+---
+# Variables specific to the base_config role (not easily overridden)
+# For this role, there aren't many, but it's good practice to have the file.
