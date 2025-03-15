@@ -1,0 +1,10 @@
+---
+hostname: R1
+domain_name: lab.local
+ansible_user: vagrant
+ansible_password: vagrant
+ansible_become_pass: vagrant
+tftp_server: 172.16.1.1
+image: c9k_rpboot.17.10.01prd7.bin
+config_backup_file: "{{ inventory_hostname }}-config.backup"
+config_backup_location: "bootflash:"
