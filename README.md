@@ -165,7 +165,7 @@ This repository provides a **basic example** of how to use Ansible to automate t
     ```
     Or:
     ```bash
-        ansible-playbook -i hosts.ini site.yml -k
+    ansible-playbook -i hosts.ini site.yml -k
     ```
 
     
