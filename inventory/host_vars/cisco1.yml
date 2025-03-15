@@ -1,0 +1,17 @@
+---
+# Host-specific variables for cisco1
+
+static_ip: "192.168.1.10"  # Override the group static_ip
+hostname: "cisco1-router"   # Override the group hostname
+
+# Example of a host-specific SSH ACL (overrides the default in base_config)
+ssh_acl:
+  - "permit tcp host 192.168.1.100 any eq 22" # Management station
+  - "permit tcp host 192.168.1.101 any eq 22" # Backup management
+  - "deny   tcp any any eq 22"              # Deny all other SSH
+
+# Example:  Different WireGuard peer configuration for this host
+# wireguard_peers:
+#   - public_key: "!vault | <encrypted_peer1_public_key>" # USE VAULT!
+#     allowed_ips: "10.8.0.2/32"
+#     endpoint: "peer1.example.com:51820"
