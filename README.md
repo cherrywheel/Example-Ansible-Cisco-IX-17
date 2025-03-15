@@ -169,36 +169,35 @@ This repository provides a **basic example** of how to use Ansible to automate t
     ```
 
 ## Directory Structure
-cisco-automation/          # Main project directory (you can name it anything)
+
+├── .gitignore            # File specifying files/folders to be ignored by Git
+├── LICENSE               # Project license file (e.g., MIT License)
+├── README.md             # Project documentation file
 ├── ansible.cfg           # Ansible configuration file: sets global Ansible behavior
 ├── inventory/            # Directory containing inventory files
-│   ├── hosts             # Main inventory file: lists your Cisco devices (INI or YAML format)
-│   └── group_vars/       # Directory containing group variable files
-│       └── cisco_devices.yml  # Variables for the 'cisco_devices' group (USE ANSIBLE VAULT!)
-│   └── host_vars/        # Directory containing host specific variables
-│       └── cisco1.yml    # Example of host specific variables
+│   ├── group_vars/       # Directory containing group variable files
+│   │   └── cisco_devices.yml  # Variables for the 'cisco_devices' group (USE ANSIBLE VAULT!)
+│   ├── host_vars/        # Directory containing host specific variables
+│   │   └── cisco1.yml    # Example of host specific variables file
+│   └── hosts             # Main inventory file: lists your Cisco devices (INI or YAML format)
 ├── playbooks/            # Directory containing Ansible playbooks
 │   └── cisco_config.yml  # Main playbook: defines the tasks to run on your devices
-├── roles/                # Directory containing Ansible roles
-│   ├── base_config/      # Role for basic Cisco IOS XE configuration
-│   │   ├── tasks/        # Directory containing the role's tasks
-│   │   │   └── main.yml  # Main task file for the base_config role
-│   │   ├── vars/         # Directory containing variables specific to the role
-│   │   │   └── main.yml  # Variables that should NOT be easily overridden
-│   │   └── defaults/     # Directory containing default variable values for the role
-│   │       └── main.yml  # Default variables (easily overridden by group_vars or host_vars)
-│   └── wireguard_config/ # Role for WireGuard configuration (if you're using WireGuard)
-│       ├── tasks/
-│       │   └── main.yml
-│       ├── vars/
-│       │   └── main.yml
-│       └── defaults/
-│           └── main.yml
-├── .gitignore            # File specifying files/folders to be ignored by Git
-├── README.md             # Project documentation file
 ├── requirements.yml      # Specifies Ansible collection dependencies
-└── LICENSE # Specifies Ansible collection dependencies
-
+└── roles/                # Directory containing Ansible roles
+    ├── base_config/      # Role for basic Cisco IOS XE configuration
+    │   ├── defaults/     # Directory containing default variable values for the role
+    │   │   └── main.yml  # Default variables (easily overridden by group_vars or host_vars)
+    │   ├── tasks/        # Directory containing the role's tasks
+    │   │   └── main.yml  # Main task file for the base_config role
+    │   └── vars/         # Directory containing variables specific to the role
+    │       └── main.yml  # Variables that should NOT be easily overridden
+    └── wireguard_config/ # Role for WireGuard configuration (if you're using WireGuard)
+        ├── defaults/     # Directory containing default variable values for the role
+        │   └── main.yml  # Default variables for the wireguard_config role
+        ├── tasks/        # Directory containing the role's tasks
+        │   └── main.yml  # Main task file for the wireguard_config role
+        └── vars/         # Directory containing variables specific to the role
+            └── main.yml  # Variables specific to the wireguard_config role
 
 ## Improvements Needed (Before Production Use)
 
