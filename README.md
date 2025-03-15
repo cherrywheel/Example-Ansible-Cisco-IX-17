@@ -169,21 +169,35 @@ This repository provides a **basic example** of how to use Ansible to automate t
     ```
 
 ## Directory Structure
-Example-Ansible-Cisco-IX-17/
-├── ansible.cfg # Ansible configuration file
-├── hosts.ini # Inventory file (example)
-├── group_vars/
-│ └── all.yml # Group variables (INSECURE - example only, REQUIRES VAULT)
-├── roles/
-│ ├── ios_config/ # Role for basic IOS configuration (example)
-│ │ └── tasks/
-│ │ └── main.yml # Tasks for the ios_config role
-│ └── ios_upgrade/ # Role for IOS upgrades (example)
-│ └── tasks/
-│ └── main.yml # Tasks for the ios_upgrade role
-├── site.yml # Main playbook (example)
-├── requirements.yml # Ansible collection requirements
-└── README.md # This file
+cisco-automation/          # Main project directory (you can name it anything)
+├── ansible.cfg           # Ansible configuration file: sets global Ansible behavior
+├── inventory/            # Directory containing inventory files
+│   ├── hosts             # Main inventory file: lists your Cisco devices (INI or YAML format)
+│   └── group_vars/       # Directory containing group variable files
+│       └── cisco_devices.yml  # Variables for the 'cisco_devices' group (USE ANSIBLE VAULT!)
+│   └── host_vars/        # Directory containing host specific variables
+│       └── cisco1.yml    # Example of host specific variables
+├── playbooks/            # Directory containing Ansible playbooks
+│   └── cisco_config.yml  # Main playbook: defines the tasks to run on your devices
+├── roles/                # Directory containing Ansible roles
+│   ├── base_config/      # Role for basic Cisco IOS XE configuration
+│   │   ├── tasks/        # Directory containing the role's tasks
+│   │   │   └── main.yml  # Main task file for the base_config role
+│   │   ├── vars/         # Directory containing variables specific to the role
+│   │   │   └── main.yml  # Variables that should NOT be easily overridden
+│   │   └── defaults/     # Directory containing default variable values for the role
+│   │       └── main.yml  # Default variables (easily overridden by group_vars or host_vars)
+│   └── wireguard_config/ # Role for WireGuard configuration (if you're using WireGuard)
+│       ├── tasks/
+│       │   └── main.yml
+│       ├── vars/
+│       │   └── main.yml
+│       └── defaults/
+│           └── main.yml
+├── .gitignore            # File specifying files/folders to be ignored by Git
+├── README.md             # Project documentation file
+├── requirements.yml      # Specifies Ansible collection dependencies
+└── LICENSE # Specifies Ansible collection dependencies
 
 
 ## Improvements Needed (Before Production Use)
