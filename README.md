@@ -131,7 +131,7 @@ This repository provides a **basic example** of how to use Ansible to automate t
     *  **After encrypting the variables**, save the `group_vars/all.yml` file.  It should now contain *only* encrypted passwords.
     * You can edit encrypted file using:
      ```bash
-        ansible-vault edit group_vars/all.yml --vault-password-file vault_password.txt
+     ansible-vault edit group_vars/all.yml --vault-password-file vault_password.txt
      ```
 
 3.  **Ansible Configuration (`ansible.cfg`):**
