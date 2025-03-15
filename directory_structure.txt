@@ -1,0 +1,243 @@
+Directory Structure and File Descriptions for the Cisco Automation Project
+
+This file provides a detailed explanation of each file and directory in the
+improved Cisco automation project structure.
+
+Project Root: cisco-automation/
+---------------------------------
+
+  This is the top-level directory for your project.  You can name it
+  anything relevant (e.g., `cisco-network-automation`, `my-ansible-project`).
+
+File: .gitignore
+-----------------
+
+  This file tells Git which files and directories to *ignore*.  It's
+  crucial for preventing sensitive information (like your vault password
+  file) and temporary files from being accidentally committed to your
+  repository.  It should include entries like:
+
+  *.pyc
+  __pycache__/
+  *.log
+  vault_password.txt  # Or whatever you name your vault password file
+  .DS_Store
+
+File: LICENSE
+--------------
+
+  This file contains the license for your project.  It's important to
+  choose a license (e.g., MIT, GPLv3, Apache 2.0) to clearly define the
+  terms under which others can use, modify, and distribute your code.
+  The MIT License is a common and permissive choice for open-source
+  projects.
+
+File: README.md
+---------------
+
+  This is the main documentation file for your project.  It should
+  provide a clear and comprehensive overview, including:
+
+  *   Project description and purpose
+  *   Requirements (Ansible version, Python version, collections, etc.)
+  *   Installation instructions
+  *   Configuration instructions (inventory, variables, Ansible Vault)
+  *   Usage examples
+  *   Directory structure overview (using the tree-view format)
+  *   Troubleshooting tips
+  *   Contribution guidelines (optional)
+  *   License information
+
+File: ansible.cfg
+------------------
+
+  This file configures Ansible's behavior.  It's *highly recommended*
+  to use an `ansible.cfg` file to explicitly define settings, rather
+  than relying on the defaults.  Important settings include:
+
+  *   `inventory`:  Specifies the location of your inventory file.
+  *   `host_key_checking`:  Controls SSH host key verification (should be
+      enabled in production).
+  *   `roles_path`:  Specifies where Ansible should look for roles.
+  *   `[privilege_escalation]`:  Defines how Ansible should elevate
+      privileges (essential for Cisco devices, using `become` and
+      `become_method=enable`).
+  *   `timeout`, `connect_timeout`, `command_timeout`:  Set timeouts to
+      prevent Ansible from hanging indefinitely.
+  * `stdout_callback`: Defines how the result of running will be displayed.
+
+Directory: inventory/
+----------------------
+
+  This directory contains your inventory files, which define the hosts
+  and groups that Ansible will manage.
+
+  File: inventory/hosts
+  ----------------------
+
+    This is your main inventory file. It can be in either INI or YAML
+    format.  It lists your Cisco devices and assigns them to groups.
+    Example (INI format):
+
+    ```ini
+    [cisco_devices]
+    cisco1 ansible_host=192.168.1.1 ansible_network_os=iosxe
+    cisco2 ansible_host=192.168.1.2 ansible_network_os=iosxe
+    ```
+
+    Example (YAML format):
+
+    ```yaml
+    all:
+      hosts:
+        cisco1:
+          ansible_host: 192.168.1.1
+          ansible_network_os: iosxe
+        cisco2:
+          ansible_host: 192.168.1.2
+          ansible_network_os: iosxe
+      children:
+        cisco_devices:
+          hosts:
+            cisco1:
+            cisco2:
+    ```
+
+  Directory: inventory/group_vars/
+  --------------------------------
+
+    This directory contains variable files that apply to *groups* of
+    hosts.  This is the *recommended* way to define shared variables.
+
+    File: inventory/group_vars/cisco_devices.yml
+    ---------------------------------------------
+
+      This file defines variables that apply to all hosts in the
+      `cisco_devices` group.  This is where you should define most of
+      your configuration variables, *especially* those that are shared
+      across multiple devices.
+
+      **CRITICAL:**  Use Ansible Vault to encrypt *all* sensitive data
+      in this file (passwords, private keys, etc.).  Use the
+      `ansible-vault encrypt_string` command to encrypt individual
+      variables, and replace the plain text values with the encrypted
+      output.
+
+  Directory: inventory/host_vars/
+  -------------------------------
+    This directory contains variable files that apply to *individual* hosts.
+    Variables defined here override variables defined in `group_vars`. This is
+    useful for making exceptions or configuring host-specific settings.
+    File: inventory/host_vars/cisco1.yml
+    ------------------------------------
+        Example for file that defines variables for the host named `cisco1`.
+
+Directory: playbooks/
+----------------------
+
+  This directory contains your Ansible playbooks.  Playbooks are YAML
+  files that define the tasks to be executed on your managed hosts.
+
+  File: playbooks/cisco_config.yml
+  ----------------------------------
+
+    This is your main playbook.  It specifies which hosts to target,
+    which roles to apply, and any additional tasks to execute. Example:
+
+    ```yaml
+      ---
+    - hosts: cisco_devices
+      gather_facts: true
+      become: yes
+      become_method: enable
+
+      roles:
+        - base_config
+        - wireguard_config
+
+      tasks:
+        - name: Save running config
+          cisco.ios.ios_config:
+            save_when: always
+    ```
+
+File: requirements.yml
+------------------------
+    This file lists the Ansible collections that your project depends on.
+    Example:
+    ```
+    ---
+    collections:
+    - name: cisco.ios
+    - name: ansible.netcommon
+    ```
+
+Directory: roles/
+------------------
+
+  This directory contains your Ansible roles.  Roles are self-contained
+  units of automation that can be reused across multiple playbooks.
+
+  Role: roles/base_config/
+  --------------------------
+
+    This is an example role for configuring basic settings on Cisco IOS
+    XE devices.
+
+    Directory: roles/base_config/tasks/
+    ------------------------------------
+
+      This directory contains the tasks for the `base_config` role.
+
+      File: roles/base_config/tasks/main.yml
+      ---------------------------------------
+
+        This file defines the sequence of tasks to be executed for the
+        `base_config` role (e.g., setting the hostname, configuring
+        users, setting up SSH).
+
+    Directory: roles/base_config/vars/
+    -----------------------------------
+
+      This directory contains variables that are *specific* to the
+      `base_config` role and are *not* intended to be easily
+      overridden.
+
+      File: roles/base_config/vars/main.yml
+      --------------------------------------
+
+        This file defines variables that are internal to the
+        `base_config` role.
+
+    Directory: roles/base_config/defaults/
+    ---------------------------------------
+
+      This directory contains *default* variable values for the
+      `base_config` role.  These variables have the *lowest*
+      precedence and can be easily overridden by variables defined in
+      `group_vars` or `host_vars`.
+
+      File: roles/base_config/defaults/main.yml
+      ------------------------------------------
+
+        This file defines default values for variables used in the
+        `base_config` role.
+
+  Role: roles/wireguard_config/
+  ------------------------------
+
+    This is an example role for configuring WireGuard VPN on Cisco IOS
+    XE devices (if you are using WireGuard). The structure is the same
+    as the `base_config` role:
+
+      Directory: roles/wireguard_config/tasks/
+      -----------------------------------------
+        File: roles/wireguard_config/tasks/main.yml
+
+      Directory: roles/wireguard_config/vars/
+      ----------------------------------------
+        File: roles/wireguard_config/vars/main.yml
+
+      Directory: roles/wireguard_config/defaults/
+      --------------------------------------------
+        File: roles/wireguard_config/defaults/main.yml
