@@ -1,0 +1,12 @@
+---
+# Default values for the wireguard_config role
+# These can be overridden by group_vars or host_vars.
+
+# Default WireGuard interface name
+wireguard_interface: "Tunnel100"
+
+# Default WireGuard listen port
+wireguard_listen_port: 51820
+
+# Default Wireguard Address
+wireguard_address: "10.8.0.1/24"
