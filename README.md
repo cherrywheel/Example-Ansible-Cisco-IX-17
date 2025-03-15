@@ -170,80 +170,88 @@ This repository provides a **basic example** of how to use Ansible to automate t
 
 ## Directory Structure
 
-├── .gitignore             
-│   # Files/folders to be ignored by Git
-│
-├── LICENSE               
-│   # Project license file (e.g., MIT License)
-│
-├── README.md             
-│   # Project documentation file
-│
-├── ansible.cfg           
-│   # Ansible configuration file: sets global behavior
-│
-├── inventory/            
-│   # Directory containing inventory files
-│   │
-│   ├── group_vars/       
-│   │   # Group-specific variables
-│   │   └── cisco_devices.yml  
-│   │       # Variables for 'cisco_devices' group (USE ANSIBLE VAULT!)
-│   │
-│   ├── host_vars/        
-│   │   # Host-specific variables
-│   │   └── cisco1.yml    
-│   │       # Example of host-specific variables
-│   │
-│   └── hosts             
-│       # Main inventory file (INI or YAML format)
-│
-├── playbooks/            
-│   # Directory containing Ansible playbooks
-│   └── cisco_config.yml  
-│       # Main playbook for Cisco devices
-│
-├── requirements.yml      
-│   # Ansible collection dependencies
-│
-└── roles/                
-    # Directory containing Ansible roles
-    │
-    ├── base_config/      
-    │   # Role for basic Cisco IOS XE configuration
-    │   │
-    │   ├── defaults/     
-    │   │   # Default variable values (overridden by group_vars/host_vars)
-    │   │   └── main.yml  
-    │   │       # Default variables
-    │   │
-    │   ├── tasks/        
-    │   │   # Tasks for the role
-    │   │   └── main.yml  
-    │   │       # Main task file
-    │   │
-    │   └── vars/         
-    │       # Role-specific variables (not easily overridden)
-    │       └── main.yml  
-    │           # Variables that should NOT be easily overridden
-    │
-    ├── wireguard_config/ 
-    │   # Role for WireGuard configuration
-    │   │
-    │   ├── defaults/     
-    │   │   # Default variable values
-    │   │   └── main.yml  
-    │   │       # Default variables for WireGuard
-    │   │
-    │   ├── tasks/        
-    │   │   # Role tasks
-    │   │   └── main.yml  
-    │   │       # Main task file
-    │   │
-    │   └── vars/         
-    │       # Role-specific variables
-    │       └── main.yml  
-    │           # WireGuard-specific variables
+## Ignored Files  
+├── .gitignore  
+# Files/folders to be ignored by Git  
+
+## Project Metadata  
+├── LICENSE  
+# Project license file (e.g., MIT License)  
+├── README.md  
+# Project documentation file  
+
+## Ansible Configuration  
+├── ansible.cfg  
+# Ansible configuration file: sets global behavior  
+
+## Inventory  
+├── inventory/  
+# Directory containing inventory files  
+│  
+│  ├── group_vars/  
+│  # Group-specific variables  
+│  └── cisco_devices.yml  
+│      # Variables for 'cisco_devices' group (USE ANSIBLE VAULT!)  
+│  
+│  ├── host_vars/  
+│  # Host-specific variables  
+│  └── cisco1.yml  
+│      # Example of host-specific variables  
+│  
+│  └── hosts  
+│      # Main inventory file (INI or YAML format)  
+
+## Playbooks  
+├── playbooks/  
+# Directory containing Ansible playbooks  
+└── cisco_config.yml  
+    # Main playbook for Cisco devices  
+
+## Dependencies  
+├── requirements.yml  
+# Ansible collection dependencies  
+
+## Roles  
+└── roles/  
+# Directory containing Ansible roles  
+
+### Base Configuration Role  
+├── base_config/  
+│  # Role for basic Cisco IOS XE configuration  
+│  
+│  ├── defaults/  
+│  # Default variable values (overridden by group_vars/host_vars)  
+│  └── main.yml  
+│      # Default variables  
+│  
+│  ├── tasks/  
+│  # Tasks for the role  
+│  └── main.yml  
+│      # Main task file  
+│  
+│  └── vars/  
+│      # Role-specific variables (not easily overridden)  
+│      └── main.yml  
+│          # Variables that should NOT be easily overridden  
+
+### WireGuard Configuration Role  
+├── wireguard_config/  
+│  # Role for WireGuard configuration  
+│  
+│  ├── defaults/  
+│  # Default variable values  
+│  └── main.yml  
+│      # Default variables for WireGuard  
+│  
+│  ├── tasks/  
+│  # Role tasks  
+│  └── main.yml  
+│      # Main task file  
+│  
+│  └── vars/  
+│      # Role-specific variables  
+│      └── main.yml  
+│          # WireGuard-specific variables
     
 ## Improvements Needed (Before Production Use)
 
