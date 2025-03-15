@@ -1,0 +1,6 @@
+*.pyc
+__pycache__/
+*.log
+vault.yml
+vault_password.txt
+.DS_Store
