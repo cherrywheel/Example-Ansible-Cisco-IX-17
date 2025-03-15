@@ -197,7 +197,3 @@ This project is a **basic example** and requires *significant* improvements befo
 ## Contributing
 
 Feel free to contribute!
-
-## License
-
-To be determined.
